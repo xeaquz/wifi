@@ -19,6 +19,9 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.messages.Message;
 import com.google.android.gms.nearby.messages.MessageListener;
+import com.google.gson.Gson;
+
+import java.nio.charset.Charset;
 
 public class Example extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener  {
 
@@ -40,6 +43,7 @@ public class Example extends AppCompatActivity implements GoogleApiClient.Connec
     Button btnSend;
 
     int counter = 0;
+    private static final Gson gson = new Gson();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +70,7 @@ public class Example extends AppCompatActivity implements GoogleApiClient.Connec
             @Override
             public void onFound(final Message message) {
                 // Do something with message.getContent()
+                Log.i(TAG, String.valueOf(message));
                 String parsedMessage = DeviceMessage.fromNearbyMessage(message).getMessageBody();
                 Log.i(TAG, parsedMessage);
                 setMessageToView(parsedMessage);
@@ -88,7 +93,8 @@ public class Example extends AppCompatActivity implements GoogleApiClient.Connec
 //                myMessage = DeviceMessage.newNearbyMessage(
 //                        InstanceID.getInstance(getApplicationContext()).getId(),String.valueOf(counter));
                 String message = "zz";
-                Message msg = new Message(message.getBytes());
+                Message msg = DeviceMessage.newNearbyMessage("0", message);
+
                 Nearby.Messages.publish(mGoogleApiClient, msg)
                         .setResultCallback(new ErrorCheckingCallback("publish()"));
             }
@@ -188,8 +194,9 @@ public class Example extends AppCompatActivity implements GoogleApiClient.Connec
 //        mMessage = DeviceMessage.newNearbyMessage(
 //                InstanceID.getInstance(getApplicationContext()).getId());
 
-        String message = "public and subscribe";
-        Message msg = new Message(message.getBytes());
+        String message = "zz2";
+        //Message msg = new Message(gson.toJson(message).getBytes(Charset.forName("UTF-8")));
+        Message msg = DeviceMessage.newNearbyMessage("0", message);
 
         Nearby.Messages.publish(mGoogleApiClient, msg)
                 .setResultCallback(new ErrorCheckingCallback("publish()"));

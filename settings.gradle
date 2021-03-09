@@ -1,2 +1,4 @@
+include ':wifiwear2'
+include ':wifiwear'
 include ':app'
 rootProject.name = "Nearby"
