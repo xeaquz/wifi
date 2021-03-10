@@ -14,6 +14,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 
 import java.time.Instant;
@@ -21,12 +23,12 @@ import java.time.Instant;
 import static android.os.Looper.getMainLooper;
 
 public class MyWiFiActivity extends AppCompatActivity {
-    WifiP2pManager manager;
-    WifiP2pManager.Channel channel;
-    BroadcastReceiver receiver;
-    IntentFilter intentFilter;
+    private WifiP2pManager manager;
+    private WifiP2pManager.Channel channel;
+    private BroadcastReceiver receiver;
+    private IntentFilter intentFilter;
 
-    Button btnConnect, btnTag, btnStart, btnStop;
+    private Context context;
 
     public static boolean setIsWifiP2pEnable;
 
@@ -37,7 +39,9 @@ public class MyWiFiActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+        context = getApplicationContext();
 
+        Button btnConnect, btnTag, btnStart, btnStop;
         btnConnect = findViewById(R.id.btn_conenct);
         btnStart = findViewById(R.id.btn_start);
         btnStop = findViewById(R.id.btn_stop);
@@ -70,23 +74,6 @@ public class MyWiFiActivity extends AppCompatActivity {
         checkPermission();
         checkWiFi();
 
-
-//        //obtain a peer from the WifiP2pDeviceList
-//        WifiP2pDevice device = null;
-//        WifiP2pConfig config = new WifiP2pConfig();
-//        config.deviceAddress = device.deviceAddress;
-//        manager.connect(channel, config, new WifiP2pManager.ActionListener() {
-//
-//            @Override
-//            public void onSuccess() {
-//                //success logic
-//            }
-//
-//            @Override
-//            public void onFailure(int reason) {
-//                //failure logic
-//            }
-//        });
     }
 
     /* register the broadcast receiver with the intent values to be matched */
@@ -117,6 +104,15 @@ public class MyWiFiActivity extends AppCompatActivity {
         } else {
             Toast.makeText(this, "설정에서 WiFi를 연결시키세요", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public void setRecyclerView() {
+        RecyclerView recyclerView = findViewById(R.id.recycler_device);
+        recyclerView.setLayoutManager(new LinearLayoutManager(context));
+
+        DeviceListRecycler adapter = new DeviceListRecycler(WiFiDirectBroadcastReceiver.peers);
+        recyclerView.setAdapter(adapter);
+
     }
 
 }

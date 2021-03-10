@@ -17,18 +17,18 @@ import java.util.ArrayList;
  */
 public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
 
-    private WifiP2pManager mManager;
-    private WifiP2pManager.Channel mChannel;
-    private MyWiFiActivity mActivity;
-    public ArrayList<WifiP2pDevice> peers = new ArrayList<>();
+    public static WifiP2pManager mManager;
+    public static WifiP2pManager.Channel mChannel;
+    public MyWiFiActivity mActivity;
+    public static ArrayList<WifiP2pDevice> peers = new ArrayList<>();
 
     private String TAG = "wifilog";
 
     public WiFiDirectBroadcastReceiver(WifiP2pManager manager, WifiP2pManager.Channel channel,
                                        MyWiFiActivity activity) {
         super();
-        this.mManager = manager;
-        this.mChannel = channel;
+        mManager = manager;
+        mChannel = channel;
         this.mActivity = activity;
     }
 
@@ -43,7 +43,11 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             public void onPeersAvailable(WifiP2pDeviceList peerList) {
                 peers.clear();
                 peers.addAll(peerList.getDeviceList());
-                Log.d(TAG, "peer: " + peerList.getDeviceList());
+                Log.d(TAG, "peer: " + peers);
+
+                if(peers != null) {
+                    mActivity.setRecyclerView();
+                }
 
             }
         };
@@ -54,12 +58,11 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             int state = intent.getIntExtra(mManager.EXTRA_WIFI_STATE, -1);
             if(state == mManager.WIFI_P2P_STATE_ENABLED) {
                 mActivity.setIsWifiP2pEnable = true;
-                mActivity.checkWiFi();
             }
             else {
                 mActivity.setIsWifiP2pEnable = false;
-                mActivity.checkWiFi();
             }
+            mActivity.checkWiFi();
         } else if (WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)) {
             // Call WifiP2pManager.requestPeers() to get a list of current peers
             Log.d(TAG, "WIFI_P2P_PEERS_CHANGED_ACTION");
@@ -76,5 +79,25 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             Log.d(TAG, "WIFI_P2P_THIS_DEVICE_CHANGED_ACTION");
         }
 
+    }
+
+    public void connection(int idx) {
+        //obtain a peer from the WifiP2pDeviceList
+        WifiP2pDevice device = peers.get(idx);
+        WifiP2pConfig config = new WifiP2pConfig();
+        config.deviceAddress = device.deviceAddress;
+        mManager.connect(mChannel, config, new WifiP2pManager.ActionListener() {
+
+            @Override
+            public void onSuccess() {
+                Log.d(TAG, "success to connect with " + device);
+            }
+
+            @Override
+            public void onFailure(int reason) {
+
+                Log.d(TAG, "fail to connect with device " + reason);
+            }
+        });
     }
 }
